@@ -24,9 +24,13 @@
 	// eslint-disable-next-line node/no-missing-import
 	import Child from '$lib/Child.svelte';
 	import { setSomeContext } from 'e2e-test-dep-svelte-api-only';
+	import 'flatpickr/dist/themes/airbnb.css';
 	export let load_status = 'NOT_LOADED';
 	let mount_status = 'BEFORE_MOUNT';
+	let datepicker;
 	onMount(async () => {
+		const fp = (await import('flatpickr')).default;
+		fp(datepicker);
 		const isSSR = (await import('../client-only-module.js')).default;
 		console.log(`onMount dynamic imported isSSR: ${isSSR}`);
 		mount_status = 'AFTER_MOUNT';
@@ -51,6 +55,7 @@
 	<div id="load">{load_status}</div>
 	<div id="mount">{mount_status}</div>
 	<div>{$_('welcome')}</div>
+	<input type="date" bind:this={datepicker} />
 </main>
 
 <!-- HMR-TEMPLATE-INJECT -->

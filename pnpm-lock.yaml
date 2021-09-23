@@ -217,12 +217,14 @@ importers:
       '@sveltejs/adapter-node': ^1.0.0-next.49
       '@sveltejs/kit': ^1.0.0-next.171
       e2e-test-dep-svelte-api-only: workspace:*
+      flatpickr: ^4.6.9
       svelte: ^3.43.0
       svelte-i18n: ^3.3.10
     devDependencies:
       '@sveltejs/adapter-node': 1.0.0-next.49
       '@sveltejs/kit': 1.0.0-next.171_svelte@3.43.0
       e2e-test-dep-svelte-api-only: link:../_test_dependencies/svelte-api-only
+      flatpickr: 4.6.9
       svelte: 3.43.0
       svelte-i18n: 3.3.10_svelte@3.43.0
 
@@ -3466,6 +3468,10 @@ packages:
     dependencies:
       flatted: 3.2.2
       rimraf: 3.0.2
+    dev: true
+
+  /flatpickr/4.6.9:
+    resolution: {integrity: sha512-F0azNNi8foVWKSF+8X+ZJzz8r9sE1G4hl06RyceIaLvyltKvDl6vqk9Lm/6AUUCi5HWaIjiUbk7UpeE/fOXOpw==}
     dev: true
 
   /flatted/3.2.2:

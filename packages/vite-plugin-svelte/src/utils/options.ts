@@ -206,7 +206,7 @@ export function buildExtraViteConfig(
 	}
 
 	// @ts-ignore
-	extraViteConfig.ssr = buildSSROptionsForSvelte(svelteDeps, options, config);
+	extraViteConfig.ssr = buildSSROptionsForSvelte(svelteDeps, config);
 
 	if (options.experimental?.useVitePreprocess) {
 		// needed to transform svelte files with component imports
@@ -227,8 +227,6 @@ function buildOptimizeDepsForSvelte(
 	options: ResolvedOptions,
 	optimizeDeps?: DepOptimizationOptions
 ): DepOptimizationOptions {
-	// only svelte component libraries needs to be processed for optimizeDeps, js libraries work fine
-	svelteDeps = svelteDeps.filter((dep) => dep.type === 'component-library');
 	// include svelte imports for optimization unless explicitly excluded
 	const include: string[] = [];
 	const exclude: string[] = ['svelte-hmr'];
@@ -242,11 +240,8 @@ function buildOptimizeDepsForSvelte(
 		);
 	};
 	if (!isExcluded('svelte')) {
-		const svelteImportsToInclude = SVELTE_IMPORTS.filter((x) => x !== 'svelte/ssr'); // not used on clientside
-		log.debug(
-			`adding bare svelte packages to optimizeDeps.include: ${svelteImportsToInclude.join(', ')} `
-		);
-		include.push(...svelteImportsToInclude.filter((x) => !isIncluded(x)));
+		log.debug(`adding bare svelte packages to optimizeDeps.include: ${SVELTE_IMPORTS.join(', ')} `);
+		include.push(...SVELTE_IMPORTS.filter((x) => !isIncluded(x)));
 	} else {
 		log.debug('"svelte" is excluded in optimizeDeps.exclude, skipped adding it to include.');
 	}
@@ -280,28 +275,8 @@ function buildOptimizeDepsForSvelte(
 	return { include, exclude };
 }
 
-function buildSSROptionsForSvelte(
-	svelteDeps: SvelteDependency[],
-	options: ResolvedOptions,
-	config: UserConfig
-): any {
+function buildSSROptionsForSvelte(svelteDeps: SvelteDependency[], config: UserConfig): any {
 	const noExternal: string[] = [];
-
-	// add svelte to ssr.noExternal unless it is present in ssr.external
-	// so we can resolve it with svelte/ssr
-	if (options.isBuild && config.build?.ssr) {
-		// @ts-ignore
-		if (!config.ssr?.external?.includes('svelte')) {
-			noExternal.push('svelte');
-		}
-	} else {
-		// for non-ssr build, we exclude svelte js library deps to make development faster
-		// and also because vite doesn't handle them properly.
-		// see https://github.com/sveltejs/vite-plugin-svelte/issues/168
-		// see https://github.com/vitejs/vite/issues/2579
-		svelteDeps = svelteDeps.filter((dep) => dep.type === 'component-library');
-	}
-
 	// add svelte dependencies to ssr.noExternal unless present in ssr.external or optimizeDeps.include
 	noExternal.push(
 		...Array.from(new Set(svelteDeps.map((s) => s.name))).filter((x) => {
@@ -310,6 +285,9 @@ function buildSSROptionsForSvelte(
 		})
 	);
 	return {
+		// never bundle svelte so node can resolve the `node` conditional exports
+		// NOTE: this also externalizes `svelte/*`
+		external: ['svelte'],
 		noExternal
 	};
 }

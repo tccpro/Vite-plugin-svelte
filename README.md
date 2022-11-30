@@ -6,6 +6,7 @@
 
 The official [Svelte](https://svelte.dev) plugin for [Vite](https://vitejs.dev).
 
+
 ## Installation
 
 ```bash
